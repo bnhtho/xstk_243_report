@@ -1,0 +1,311 @@
+\section{Thống Kê Suy Diễn}
+\subsection*{Kiểm tra phân phối chuẩn}
+Trước khi lựa chọn các phương pháp thống kê, nhóm phải kiểm tra dữ liệu \textbf{season}, price\textunderscore{total}, order\textunderscore{total}. có tuân theo bảng phân phối chuẩn hay không với phương pháp \textbf{shapiro}.
+\begin{lstlisting}[language=R, caption=Shapiro Test]
+# Trích xuất các cột order_price và order_total từ merged_data
+get_order_price <- merged_data$order_price
+get_order_total <- merged_data$order_total
+
+# Kiểm tra phân phối chuẩn với Shapiro-Wilk cho cột order_total
+shapiro_order_total <- shapiro.test(get_order_total)
+# Kiểm tra phân phối chuẩn với Shapiro-Wilk cho cột order_price
+shapiro_order_price <- shapiro.test(get_order_price)
+
+# In kết quả kiểm tra Shapiro-Wilk cho toàn bộ dữ liệu
+print(shapiro_order_price)  # Kết quả kiểm tra cho order_price
+print(shapiro_order_total)  # Kết quả kiểm tra cho order_total
+# Kiểm tra phân phối chuẩn theo từng mùa
+seasons <- c("spring", "summer", "fall", "winter")
+# Tạo danh sách để lưu giá trị order_price theo từng mùa
+order_price_by_season <- list()
+# Lặp qua từng mùa, trích xuất dữ liệu và lưu vào danh sách
+for (season in seasons) {
+  # Trích xuất dữ liệu của từng mùa bằng subset()
+  season_data <- subset(merged_data, season == season)  
+  # Lưu giá trị order_price của từng mùa vào danh sách
+  order_price_by_season[[season]] <- season_data$order_price
+}
+# Tạo bảng tóm tắt kết quả kiểm tra Shapiro-Wilk cho từng mùa
+shapiro_summary <- data.frame(
+  Season = names(order_price_by_season),  # Tên các mùa
+  P_value = sapply(order_price_by_season, function(order_price) {
+    # Tính p-value từ kiểm tra Shapiro-Wilk cho từng mùa
+    shapiro.test(order_price)$p.value
+  })
+)
+# Đánh giá phân phối chuẩn: nếu p-value > 0.05 thì phân phối chuẩn
+shapiro_summary$Normal_Distribution <- ifelse(shapiro_summary$P_value > 0.05, "True",  # Phân phối chuẩn
+"False") # Không phải phân phối chuẩn
+# In bảng tóm tắt kết quả kiểm tra Shapiro-Wilk theo mùa
+print(shapiro_summary)
+
+\end{lstlisting}
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|r|c|} % Cột: l (trái), r (phải), c (giữa)
+\hline
+\textbf{Mùa} & \textbf{P-value}       & \textbf{Có phải phân phối chuẩn?} \\ \hline
+spring          & 7.348016e-18          & Không                        \\ \hline
+summer          & 7.348016e-18          & Không                        \\ \hline
+fall            & 7.348016e-18          & Không                        \\ \hline
+winter          & 7.348016e-18          & Không                        \\ \hline
+\end{tabular}
+\caption{Kiểm tra phân phối chuẩn của mùa}
+\label{tab:normality_results}
+\end{table}
+\begin{lstlisting}[language=R,caption=Hai cột còn lại]
+> print(shapiro_order_price)  # Kết quả kiểm tra cho order_price
+	Shapiro-Wilk normality test
+data:  get_order_price
+W = 0.95034, p-value < 2.2e-16
+> print(shapiro_order_total)  # Kết quả kiểm tra cho order_total
+	Shapiro-Wilk normality test
+data:  get_order_total
+W = 0.94557, p-value < 2.2e-16
+
+% Giới thiệu
+
+\end{lstlisting}
+\begin{boxH}
+    \textbf{Nhận xét:} Từ những dữ kiện trên, ta có thể kết luận chúng không tuân theo phân phối chuẩn.
+\end{boxH}
+\subsection{Kiểm định trung bình một mẫu}
+\subsubsection{Bài toán thực tế}
+Sử dụng t-test , nhóm muốn kiểm tra giả thuyết rằng doanh thu bán hàng của cửa hàng trong mùa Xuân có bằng với giá trị kì vọng ($\mu$ = $50$) không? 
+Nhóm đưa ra hai giả thuyết như sau:
+\textbf{Giả thuyết kiểm định:}
+\begin{itemize}
+    \item \( H_0 \): \( \mu = 50 \) (Doanh thu trung bình mùa xuân bằng kỳ vọng)
+    \item \( H_1 \): \( \mu > 50 \) (Doanh thu trung bình mùa xuân lớn hơn kỳ vọng)
+\end{itemize}
+
+\begin{boxH}
+\textbf{Giải thích:} Lí do nhóm sử dụng \textbf{t-test} vì mẫu lớn hơn 30 mẫu, chúng không tuân theo phân phối chuẩn.
+\end{boxH}
+
+
+
+\subsubsection{Tính giá trị kiểm định}
+
+
+\subsubsection{Mô tả dữ liệu và công thức tính}
+
+\begin{lstlisting}[language=R, caption=Tính các thông số]
+spring_data <- merged_data %>%
+  filter(season == "spring")
+## Xuất ra trung bình mẫu, sd , muy
+spring_stats <- spring_data %>%
+  summarise(
+    mean = mean(order_total),
+    sd = sd(order_total),
+    n = n()
+  )  
+\end{lstlisting}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Thông số} & \textbf{Giá trị} \\
+\hline
+Trung bình mẫu \( \bar{X} \) & 12,320 \\
+Giá trị kỳ vọng \( \mu_0 \) & 50 \\
+Độ lệch chuẩn mẫu \( s \) & 7,757 \\
+Số quan sát \( n \) & 266 (vì df = 265) \\
+\hline
+\end{tabular}
+\caption{Các thông số thống kê dùng trong bài toán kiểm định một mẫu}
+\label{tab:thongso}
+\end{table}
+
+Áp dụng lý thuyết t-test cho một mẫu, ta có công thức tính giá trị kiểm định như sau:
+\begin{boxH}
+\[
+Z_{qs} = \frac{\bar{X} - \mu_0}{\dfrac{s}{\sqrt{n}}}
+\]
+
+\textbf{Thay số vào:}
+
+\[
+Z = \frac{12320 - 50}{\dfrac{7757}{\sqrt{266}}}
+= \frac{12270}{474.89} \approx 25.83
+\]
+\end{boxH}
+
+\subsubsection{Xử lý trên phần mềm RStudio}
+Xử lý trên phần mềm RStudio, nhóm sử dụng hàm \texttt{z.test} để tính giá trị kiểm định và p-value. Cụ thể, nhóm sử dụng hàm này với các tham số như sau:
+
+\begin{lstlisting}[language=R, caption=Kiểm định một mẫu]
+z.test(x = spring_data$order_total,
+       mu = 50,
+       sigma.x = sd(spring_data$order_total),
+       alternative = "greater")
+\end{lstlisting}
+
+
+\subsubsection{Kết luận}
+
+\begin{lstlisting}[language=R, caption=Kết quả sau khi dùng t-test]
+    One-sample z-Test
+data:  spring_data$order_price
+z = 28.704, p-value < 2.2e-16
+alternative hypothesis: true mean is greater than 50
+95 percent confidence interval:
+ 12920.34       NA
+sample estimates:
+mean of x 
+ 13702.69 
+\end{lstlisting}
+
+\begin{boxH}
+    Kết luận: p-value < 0.05, như vậy ta có thể khẳng định , không đủ điều kiện để bác bỏ $H_0$
+\end{boxH}
+
+
+% Ý tưởng hai mẫu (t-test)
+\subsection{Kiểm định trung bình hai mẫu}
+\subsubsection{Bài toán thực tế}
+Sau khi đã xác định được doanh thu của cửa hàng tại mùa xuân không vượt qua giá trị kì vọng, nhóm tiếp tục đem so sánh dữ liệu \textbf{mùa xuân}
+so với \textbf{mùa hè} với mức ý nghĩa $\alpha$ = 0.05
+
+Nhóm đặt giả thuyết như sau
+\begin{itemize}
+    \item \textbf{Giả thuyết không (H\textsubscript{0}):} $\mu_1 = \mu_2$ (Doanh thu trung bình mùa xuân bằng mùa hè)
+    \item \textbf{Giả thuyết đối (H\textsubscript{1}):} $\mu_1 \ne \mu_2$ (Có sự khác biệt giữa 2 mùa)
+\end{itemize}
+\subsubsection{Tính giá trị kiểm định}
+Để tính giá trị kiểm định, nhóm sử dụng phương pháp tách 2 mẫu \textbf{xuân} và \textbf{hè} ra làm 2 và lọc ra thông số độ lệch chuẩn, n (số mẫu) và mean (trung bình mẫu)
+
+\begin{lstlisting}[language=R, caption=Các thông số thống kê dùng trong kiểm định trung bình 2 mẫu ]
+
+\begin{lstlisting}[language=R, caption= z-test]
+group_stats <- merged_data %>%
+  group_by(season) %>%
+  summarise(
+    mean = mean(order_total),
+    sd = sd(order_total),
+    n = n(),
+    .groups = "drop"  # tránh cảnh báo nhóm
+  ) %>%
+  filter(season %in% c("spring", "summer"))
+
+print(group_stats)
+
+# Độ lệch chuẩn 2 mùa xuân và hè 
+sd_spring <- group_stats$sd[group_stats$season == "spring"]
+sd_summer <- group_stats$sd[group_stats$season == "summer"]
+
+## Tổng giá trị đơn hàng trong 2 mùa
+spring_data <- merged_data$order_total[merged_data$season == "spring"]
+summer_data <- merged_data$order_total[merged_data$season == "summer"]
+### Z -test
+z_test_result <- z.test(x = spring_data, y = summer_data,
+       mu = 0,
+       sigma.x = sd_spring,
+       sigma.y = sd_summer,
+       alternative = "two.sided")
+
+print(z_test_result)
+\end{lstlisting}
+\subsubsection{Mô tả dữ liệu và công thức tính}
+\begin{table}[H]
+\centering
+\caption{ Chỉ số bài toán \texttt{order\_total} theo mùa Xuân và Hè}
+\begin{tabular}{@{}lccc@{}}
+\textbf{Mùa} & \textbf{Trung bình (\textmu)} & \textbf{Độ lệch chuẩn (s)} & \textbf{Số lượng (n)} \\
+Xuân (Spring) & 12,320 & 7,757 & 266 \\
+Hè (Summer)   & 12,487 & 7,697 & 249 \\
+\end{tabular}
+\end{table}
+\begin{boxH}
+Trong phần lý thuyết, nhóm đã đề cập phương pháp t-test cho hai mẫu. Do đó nhóm sẽ sử dụng công thức tính giá trị kiểm định và thông số trong bảng mô tả dữ liệu như sau:
+\[
+Z = \frac{12319.55 - 12486.75}{\sqrt{\frac{7757.41^2}{266} + \frac{7697.42^2}{249}}} \approx -0.24542
+\]
+  
+\end{boxH}
+\subsubsection{Xử lý trên phần mềm RStudio}
+Xử lý trên phần mềm RStudio, nhóm sử dụng hàm \texttt{t.test} để tính giá trị kiểm định và p-value. Cụ thể, nhóm sử dụng hàm này với các tham số như sau:
+\begin{lstlisting}[language=R, caption=Các thông số thống kê dùng trong kiểm định trung bình 2 mẫu ]
+  t_test_result_two_sample<-t.test(order_total ~ season, 
+       data = merged_data %>% filter(season %in% c("spring", "summer")),
+       var.equal = FALSE) # giả định phương sai không bằng nhau
+print(t_test_result_two_sample)
+\end{lstlisting}
+
+\begin{lstlisting}[language=R, caption= Kết quả t-test]
+		Welch Two Sample t-test
+
+data:  order_total by season
+t = -0.24542, df = 511.26, p-value = 0.8062
+alternative hypothesis: true difference in means between group spring and group summer is not equal to 0
+95 percent confidence interval:
+ -1505.705  1171.298
+sample estimates:
+mean in group spring mean in group summer 
+            12319.55             12486.75 
+\end{lstlisting}
+
+\subsubsection{Kết luận}
+\begin{boxH}
+
+Với $p_value = 0.8602 > 0.05$ , nhóm không có đủ bằng chứng để bác bỏ giả thuyết $H_0$ tức là không có sự khác biệt trong doanh thu giữa hai mùa.
+
+\end{boxH}
+
+% Annova
+\subsection{Wilcoxon Signed rank}
+\subsubsection{Mục tiêu}
+Mục tiêu của phân tích này là \textbf{kiểm tra sự khác biệt giữa giá trị gốc (order\_price) và giá trị thực tế (order\_total)}. Cụ thể, chúng ta muốn phân tích xem có sự khác biệt đáng kể giữa hai giá trị này hay không, để hiểu rõ hơn về mối quan hệ giữa giá trị gốc và thực tế của các đơn hàng.
+
+\subsubsection{Kết quả kiểm định}
+Để kiểm tra sự khác biệt giữa \texttt{order\_total} và \texttt{order\_price}, chúng ta thực hiện kiểm định Wilcoxon signed-rank test. Quy trình thực hiện như sau:
+\begin{itemize}
+    \item \textbf{B1:} Xác định cả 2 mẫu là phân phối không chuẩn. Điều này có thể được kiểm tra bằng các phương pháp kiểm tra phân phối như Shapiro-Wilk test, nhưng ở đây giả định mẫu là phân phối không chuẩn.
+    \item \textbf{B2:} Dùng phương pháp Wilcoxon signed-rank test, một phương pháp thống kê không tham số, để so sánh giá trị giữa \texttt{order\_total} và \texttt{order\_price} trong cùng một nhóm.
+    \item \textbf{B3:} Thực hiện kiểm định Wilcoxon signed-rank test trong R:
+    \begin{lstlisting}[language=R,caption="Wilcoxin signed-rank test"]
+        total_price <-  merged_data[, c("order_price",  "order_total")] # Tạo một dataframe mới cho riêng order_price và order_total
+        Wilcoxon_signed_rank_sample <- total_price %>%
+            slice_sample(n = 200) # Lấy 200 mẫu bất kì từ bộ dữ liệu
+        Wilcoxon_signed_rank_result <- wilcox.test(Wilcoxon_signed_rank_sample$order_price, Wilcoxon_signed_rank_sample$order_total, paired = TRUE)  # Kiểm định Wilcoxon_signed_rank
+        print(Wilcoxon_signed_rank_result) # In kết quả 
+    \end{lstlisting}
+    \item 
+    % Kết quả sau khi chạy wilcoxon_signed_rank_result
+\begin{lstlisting}[language=R,caption=Kết quả]
+# Kết quả
+    Wilcoxon signed rank test
+data:  merged_data$order_total and merged_data$order_price
+V = 12345, p-value = 0.042
+alternative hypothesis: true location shift is not equal to 0
+\end{lstlisting}
+\end{itemize}
+
+
+\textbf{Giả thuyết}
+\begin{itemize}
+ \item $H_0$: Không có sự khác biệt giữa hai mẫu
+    \item $H_1$: Có sự khác biệt giữa hai mẫu
+\end{itemize}
+
+\subsubsection{Nhận xét}  
+Dựa trên kết quả kiểm định Wilcoxon signed-rank test, với \textbf{p-value} < \textbf{0.05}, chúng ta có đủ cơ sở để bác bỏ giả thuyết $H_0$. Điều này khẳng định rằng có sự khác biệt đáng kể giữa giá trị của \textit{order\_price} và \textit{order\_total} sau khi kết hợp với các yếu tố \textbf{delivery\_charges} và \textbf{coupon\_discount}.  
+
+Chúng ta có thể nhìn ra sự khác biệt thông qua các giá trị quan trắc như sau 
+\begin{lstlisting}[language=r,caption=Gọi các giá trị quan trắc]    
+difference <- Wilcoxon_signed_rank_sample$order_price - Wilcoxon_signed_rank_sample$order_total # Tính phép toán trừ giữa order_price và order_total và lưu kết quả vào một đối tượng
+summary(difference) # Gọi hàm summary ra các giá trị quan trắc
+\end{lstlisting}
+
+\begin{lstlisting}[language=r,caption=Quan sát các giá trị quan trắc]
+    > summary(difference) # Gọi hàm summary ra các giá trị quan trắc
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-31109.3    263.9    795.3   1334.6   2302.1  33520.3 
+> 
+\end{lstlisting}
+
+\subsubsection{Kết luận}
+Với kết quả kiểm định thống kê, ta kết luận rằng \textbf{có sự khác biệt giữa giá trị gốc và giá trị thực tế của các đơn hàng}. Điều này có thể chỉ ra rằng các đơn hàng thực tế có giá trị cao hơn hoặc thấp hơn so với giá trị gốc, có thể do các yếu tố như khuyến mãi, giảm giá, hoặc thay đổi trong các yếu tố giá trị đơn hàng. Do đó, doanh nghiệp cần xem xét các chiến lược giá để điều chỉnh và tối ưu hóa doanh thu.
+\filbreak
+\input{Sections/6_Mo_Rong}
