@@ -57,7 +57,7 @@ Cụ thể các phương pháp đã được nhóm sử dụng như sau:
 \textbf{Anova 1 yếu tố}&
 \begin{itemize}[leftmargin=*, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
     \item  Dễ hiểu và thực hiện
-    \item Không yêu cầu phương sai đồng nhất.
+    \item Có khả năng mở rộng hay kết hợp với các kiểm định bổ sung như Tukey's HSD để xác định cụ thể nhóm nào khác biệt.
 \end{itemize} &
 \begin{itemize}[leftmargin=*, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
     \item Yêu cầu tổng thể có phân phối chuẩn.
@@ -90,55 +90,37 @@ Nhóm lựa chọn các phương pháp sau:
 \end{enumerate}
 
 Việc lựa chọn trên đảm bảo phù hợp với đặc điểm dữ liệu, đáp ứng mục tiêu so sánh sự khác biệt và phân tích mối quan hệ, thay vì thuần túy dự đoán.
+\subsection{Mở rộng với phương pháp Kruskal-Wallis}
+\begin{boxH}
+    Nguyên lý của phương pháp Kruskal-Wallis
+\begin{itemize}
+    \item Sắp xếp tất cả các quan sát từ nhỏ đến lớn và gán thứ hạng (rank).
+    \item Tính tổng thứ hạng cho từng nhóm.
+    \item So sánh sự khác biệt tổng thứ hạng giữa các nhóm để đánh giá liệu các nhóm có xuất phát từ cùng một phân phối hay không.
+\end{itemize}
+\end{boxH}
 
-\subsection{Mở rộng: Dunn Test}
-% Dàn ý:
-% Mở rộng phương pháp Krustal-Wallis
-% Nêu ra những điểm mạnh , điếm yếu của 3 phương pháp trên
-Sau khi đưa ra những điểm mạnh hay giới hạn những phương pháp nhóm đã sử dụng ở trên. Nhóm quyết định sẽ mở rộng phương pháp \textbf{phân tích Annova 1 yếu tố}.
-Như đề cập ở trên, phương pháp kiểm định KW chỉ đưa ra được "bề nổi" hay chỉ kiểm tra sự khác biệt tổng thể giữa các nhóm.
-
-\noindent Nhóm sẽ áp dụng phương pháp hậu nghiệm (pos-hoc) để tìm ra cụ thể nhóm nào có sự khác biệt. Nhóm đề xuất sử dụng \textbf{Dunn Test}.
-
-\begin{lstlisting}[language=R,caption=Thực hiện phân tích Pos Hoc trong R]
-dunn_result <- dunn.test(merged_data$order_price, merged_data$season, method = "bonferroni", list = TRUE)
-# Tạo bảng kết quả
-table <- cbind.data.frame(
-  Comparison = dunn_result$comparisons,  # Các cặp so sánh (cụ thể mùa)
-  Z_value = dunn_result$Z,               # Giá trị Z
-  P_adjusted = dunn_result$P.adjusted    # P-value đã điều chỉnh
-)
-# Sắp xếp bảng theo p-value đã điều chỉnh
-table <- table[order(table$P_adjusted), ]
-# Tạo bảng với gt và thêm tiêu đề
-table %>%
-  gt() %>%
-  tab_header(
-    title = md("#### Kết quả phân tích pos-hoc (Dunn's Test)"),
-    subtitle = "So sánh sự khác nhau giữa các nhóm mùa bằng Bonerroni"
-  )
-
+Lí do nhóm chọn \textbf{Kruskal-Wallis} là vì:
+\begin{itemize}
+    \item Dữ liệu không tuân theo phân phối chuẩn và có phương sai không đồng nhất.
+    \item Kruskal-Wallis là phương pháp phi tham số, không yêu cầu giả định phân phối chuẩn.
+    \item Phù hợp để so sánh nhiều nhóm độc lập, đặc biệt khi dữ liệu không đáp ứng giả định của ANOVA.
+\end{itemize}
+\subsection{Thực hiện trong R}
+\begin{lstlisting}[language=R, caption={Phép kiểm Kruskal–Wallis trong R}]
+kruskal_result <- kruskal.test(order_price ~ season, data = merged_data)
+# Hiển thị kết quả
+print(kruskal_result)
 \end{lstlisting}
-\subsection{Kết quả}
-% Table
 
-\begin{table}[H]
-\centering
-\begin{tabular}{|l|r|r|} % Cột: l (trái), r (phải), r (phải)
-\hline
-\textbf{Các mùa} & \textbf{Z-value} & \textbf{P.adjusted} \\ \hline
-autumn - winter     & 1.4580097        & 0.4345136           \\ \hline
-autumn - spring     & 0.8823710        & 1.0000000           \\ \hline
-autumn - summer     & 0.6008488        & 1.0000000           \\ \hline
-spring - summer     & -0.2722941       & 1.0000000           \\ \hline
-spring - winter     & 0.6104089        & 1.0000000           \\ \hline
-summer - winter     & 0.8656661        & 1.0000000           \\ \hline
-\end{tabular}
-\caption{Post-hoc Analysis Results (Dunn's Test)}
-\label{tab:dunn_results}
-\end{table}
-% End table
+\begin{lstlisting}[language=R, caption={Kết quả kiểm định Kruskal-Wallis trong R}]
+	Kruskal-Wallis rank sum test
+data:  order_price by season
+Kruskal-Wallis chi-squared = 2.2004, df = 3, p-value = 0.5319
+\end{lstlisting}
 
-    \textbf{Kết luận:}
-    Sau khi xuất ra kết quả Dunn Test, tổng quan các mùa đều có khác biệt gì lớn.
+\textbf{Kết quả:} Kiểm định Kruskal–Wallis cho thấy $\chi^2 = 2.2004$, df $= 3$, p-value $= 0.5319$. 
+Vì p-value lớn hơn mức ý nghĩa 0.05, ta không bác bỏ giả thuyết gốc. 
+Điều này nghĩa là chưa có bằng chứng thống kê để kết luận giá trị \texttt{order\_price} khác biệt giữa các mùa.
+
 \input{Sections/7_Nguon_Du_Lieu_R}
