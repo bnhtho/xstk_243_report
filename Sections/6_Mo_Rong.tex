@@ -54,45 +54,48 @@ Cụ thể các phương pháp đã được nhóm sử dụng như sau:
     \item Cần số lượng mẫu đủ lớn nếu phân phối không chuẩn.
 \end{itemize} \\ \hline
 % Annova
-\textbf{Kruskal-Wallis } trong Annova &
+\textbf{Anova 1 yếu tố}&
 \begin{itemize}[leftmargin=*, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
-    \item Thay thế ANOVA khi dữ liệu không chuẩn.
-    \item So sánh $\geq$ 3 nhóm độc lập.
+    \item  Dễ hiểu và thực hiện
     \item Không yêu cầu phương sai đồng nhất.
 \end{itemize} &
 \begin{itemize}[leftmargin=*, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
+    \item Yêu cầu tổng thể có phân phối chuẩn.
     \item Không chỉ ra cặp nhóm nào khác biệt.
     \item Cần kiểm định hậu nghiệm (như Dunn Test).
 \end{itemize} \\ \hline
 
+% Hồi quy tuyến tính
+\textbf{Phương pháp OLS trong hồi quy tuyến tính} &
+\begin{itemize}[leftmargin=*, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
+    \item Dễ hiểu, tính toán nhanh, nhiều công cụ kiểm định, nền tảng lý thuyết vững
+\end{itemize} &
+\begin{itemize}[leftmargin=*, topsep=0pt, partopsep =0pt, parsep=0pt, itemsep=0pt]
+    \item Nhạy cảm với ngoại lai, cần giả định chặt chẽ, không xử lý tốt dữ liệu phi tuyến, đa cộng tuyến làm mất ổn định
+\end{itemize} \\ \hline 
+
 \end{tabular}
 \end{table}
+
 \subsection{Mối quan hệ giữa mục tiêu và phương pháp được chọn}
 
-\begin{itemize}
-    \item Phân tích hồi quy thường dùng để xây dựng mô hình dự đoán hoặc mô hình hóa mối quan hệ tuyến tính giữa biến phụ thuộc và biến độc lập.
-    \item Trong khi đó, bài toán của nhóm tập trung vào việc kiểm tra:
-    \begin{itemize}
-        \item \textbf{Sự khác biệt giữa các nhóm (mùa):} Dùng Kruskal-Wallis và Wilcoxon-Mann-Whitney.
-        \item \textbf{Sự khác biệt giữa các giá trị trong cùng một nhóm:} Dùng Wilcoxon Signed Rank.
-    \end{itemize}
-    \item Việc lựa chọn kiểm định không tham số phản ánh mục tiêu phân tích cụ thể mà không phụ thuộc vào các giả định phức tạp về phân phối dữ liệu.
-\end{itemize}
+Mục tiêu chính của nghiên cứu không phải là dự đoán giá trị, mà là kiểm tra xem các yếu tố như mùa vụ, đặc điểm sản phẩm hay hành vi mua hàng có tạo ra sự khác biệt có ý nghĩa thống kê về giá trị đơn hàng hay không. 
 
-\noindent
-\textbf{Kết luận:}  
-Phân tích hồi quy không được chọn vì:
-\begin{itemize}
-    \item Dữ liệu vi phạm các giả định quan trọng (phân phối chuẩn, phương sai đồng nhất).
-    \item Mục tiêu của nhóm không phải dự đoán giá trị mà là kiểm tra sự khác biệt thống kê.
-\end{itemize}
-Các kiểm định không tham số được chọn phù hợp hơn, chính xác hơn, và cung cấp kết quả giải thích trực tiếp liên quan đến câu hỏi bài toán.
+Nhóm lựa chọn các phương pháp sau:
+\begin{enumerate}
+    \item \textbf{Z-test một mẫu}: kiểm tra sự khác biệt giữa trung bình mẫu và giá trị giả thuyết.
+    \item \textbf{T-test hai mẫu (Welch)}: so sánh trung bình của hai nhóm độc lập khi phương sai không đồng nhất.
+    \item \textbf{ANOVA một yếu tố}: kiểm tra sự khác biệt trung bình giữa nhiều nhóm; nếu có ý nghĩa thống kê, mở rộng thêm \textbf{Dunn test} để xác định cặp nhóm khác biệt.
+    \item \textbf{Hồi quy tuyến tính}: phân tích tác động của biến độc lập lên biến phụ thuộc và đánh giá mức độ giải thích của mô hình.
+\end{enumerate}
+
+Việc lựa chọn trên đảm bảo phù hợp với đặc điểm dữ liệu, đáp ứng mục tiêu so sánh sự khác biệt và phân tích mối quan hệ, thay vì thuần túy dự đoán.
 
 \subsection{Mở rộng: Dunn Test}
 % Dàn ý:
 % Mở rộng phương pháp Krustal-Wallis
 % Nêu ra những điểm mạnh , điếm yếu của 3 phương pháp trên
-Sau khi đưa ra những điểm mạnh hay giới hạn những phương pháp nhóm đã sử dụng ở trên. Nhóm quyết định sẽ mở rộng phương pháp \textbf{Krustal-Wallis} 
+Sau khi đưa ra những điểm mạnh hay giới hạn những phương pháp nhóm đã sử dụng ở trên. Nhóm quyết định sẽ mở rộng phương pháp \textbf{phân tích Annova 1 yếu tố}.
 Như đề cập ở trên, phương pháp kiểm định KW chỉ đưa ra được "bề nổi" hay chỉ kiểm tra sự khác biệt tổng thể giữa các nhóm.
 
 \noindent Nhóm sẽ áp dụng phương pháp hậu nghiệm (pos-hoc) để tìm ra cụ thể nhóm nào có sự khác biệt. Nhóm đề xuất sử dụng \textbf{Dunn Test}.

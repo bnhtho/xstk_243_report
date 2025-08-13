@@ -252,60 +252,208 @@ mean in group spring mean in group summer
 Với $p_value = 0.8602 > 0.05$ , nhóm không có đủ bằng chứng để bác bỏ giả thuyết $H_0$ tức là không có sự khác biệt trong doanh thu giữa hai mùa.
 
 \end{boxH}
-
 % Annova
-\subsection{Wilcoxon Signed rank}
-\subsubsection{Mục tiêu}
-Mục tiêu của phân tích này là \textbf{kiểm tra sự khác biệt giữa giá trị gốc (order\_price) và giá trị thực tế (order\_total)}. Cụ thể, chúng ta muốn phân tích xem có sự khác biệt đáng kể giữa hai giá trị này hay không, để hiểu rõ hơn về mối quan hệ giữa giá trị gốc và thực tế của các đơn hàng.
+\subsection{Annova một yếu tố}
 
-\subsubsection{Kết quả kiểm định}
-Để kiểm tra sự khác biệt giữa \texttt{order\_total} và \texttt{order\_price}, chúng ta thực hiện kiểm định Wilcoxon signed-rank test. Quy trình thực hiện như sau:
+\subsubsection{Bài toán thực tế}
+Một cửa hàng điện tử muốn kiểm tra xem \textbf{giá trị đơn hàng trung bình} (\texttt{order\_total}), với cỡ mẫu của mỗi nhóm là $30$, có bị ảnh hưởng bởi \textbf{mùa vụ} (\texttt{season}) hay không.  
+Dữ liệu được thu thập từ các đơn hàng, phân loại thành $4$ nhóm theo mùa: \textbf{Winter} (mùa đông), \textbf{Summer} (mùa hè), \textbf{Autumn} (mùa thu) và \textbf{Spring} (mùa xuân).  
+
+Với mức ý nghĩa $\alpha = 5\%$, sử dụng phương ph \textbf{mô hình ANOVA một yếu tố} để kiểm tra xem giá trị đơn hàng trung bình giữa các mùa có sự khác biệt đáng kể hay không.
+\subsubsection{Giả thuyết kiểm định}
+
 \begin{itemize}
-    \item \textbf{B1:} Xác định cả 2 mẫu là phân phối không chuẩn. Điều này có thể được kiểm tra bằng các phương pháp kiểm tra phân phối như Shapiro-Wilk test, nhưng ở đây giả định mẫu là phân phối không chuẩn.
-    \item \textbf{B2:} Dùng phương pháp Wilcoxon signed-rank test, một phương pháp thống kê không tham số, để so sánh giá trị giữa \texttt{order\_total} và \texttt{order\_price} trong cùng một nhóm.
-    \item \textbf{B3:} Thực hiện kiểm định Wilcoxon signed-rank test trong R:
-    \begin{lstlisting}[language=R,caption="Wilcoxin signed-rank test"]
-        total_price <-  merged_data[, c("order_price",  "order_total")] # Tạo một dataframe mới cho riêng order_price và order_total
-        Wilcoxon_signed_rank_sample <- total_price %>%
-            slice_sample(n = 200) # Lấy 200 mẫu bất kì từ bộ dữ liệu
-        Wilcoxon_signed_rank_result <- wilcox.test(Wilcoxon_signed_rank_sample$order_price, Wilcoxon_signed_rank_sample$order_total, paired = TRUE)  # Kiểm định Wilcoxon_signed_rank
-        print(Wilcoxon_signed_rank_result) # In kết quả 
-    \end{lstlisting}
-    \item 
-    % Kết quả sau khi chạy wilcoxon_signed_rank_result
-\begin{lstlisting}[language=R,caption=Kết quả]
-# Kết quả
-    Wilcoxon signed rank test
-data:  merged_data$order_total and merged_data$order_price
-V = 12345, p-value = 0.042
-alternative hypothesis: true location shift is not equal to 0
-\end{lstlisting}
+  \item Các tổng thể phải tuân theo phân phối chuẩn $N(\mu, \sigma^2)$
+  \item Số nhóm $k=4$
+  \item Phương sai bằng nhau $\sigma_1^2 = \sigma_2^2 = \sigma_3^2 = \sigma_4^2$
+  \item Các mẫu quan sát (từ $k$ tổng thể) được lấy độc lập, với $n = 30$ cho mỗi nhóm, tổng số quan sát $N = 120$.
 \end{itemize}
 
+\subsubsection{Hiện thực phép toán}
+Gọi $\mu_i$ là giá trị đơn hàng trung bình của mùa thứ $i$.
+\begin{align*}
+    H_0 &: \mu_1 = \mu_2 = \mu_3 = \mu_4, \\
+    H_1 &: \exists\ i \neq j \ \text{sao cho} \ \mu_i \neq \mu_j.
+\end{align*}
 
-\textbf{Giả thuyết}
-\begin{itemize}
- \item $H_0$: Không có sự khác biệt giữa hai mẫu
-    \item $H_1$: Có sự khác biệt giữa hai mẫu
-\end{itemize}
+\subsubsection{Tính các tham số mẫu}
+\begin{table}[H]
+\centering
+\caption{Trung bình và phương sai mẫu theo mùa}
+\begin{tabular}{lcc}
+\hline
+Mùa & Trung bình mẫu $\overline{x}_i$ & Phương sai mẫu $s_i^2$ \\ \hline
+Winter  & $12499.31$ & $56,686,589.91$ \\
+Summer  & $12493.37$ & $61,622,987.35$ \\
+Autumn  & $12858.15$ & $48,321,908.37$ \\
+Spring  & $14594.52$ & $106,019,827.40$ \\ \hline
+\end{tabular}
+\end{table}
 
-\subsubsection{Nhận xét}  
-Dựa trên kết quả kiểm định Wilcoxon signed-rank test, với \textbf{p-value} < \textbf{0.05}, chúng ta có đủ cơ sở để bác bỏ giả thuyết $H_0$. Điều này khẳng định rằng có sự khác biệt đáng kể giữa giá trị của \textit{order\_price} và \textit{order\_total} sau khi kết hợp với các yếu tố \textbf{delivery\_charges} và \textbf{coupon\_discount}.  
+\subsubsection{Giá trị trong và giữa các nhóm}
 
-Chúng ta có thể nhìn ra sự khác biệt thông qua các giá trị quan trắc như sau 
-\begin{lstlisting}[language=r,caption=Gọi các giá trị quan trắc]    
-difference <- Wilcoxon_signed_rank_sample$order_price - Wilcoxon_signed_rank_sample$order_total # Tính phép toán trừ giữa order_price và order_total và lưu kết quả vào một đối tượng
-summary(difference) # Gọi hàm summary ra các giá trị quan trắc
-\end{lstlisting}
+\paragraph{Tổng bình phương giữa nhóm (SSB):}
+\[
+SSB = 14,303,293.20 + 14,550,442.35 + 3,299,751.675 + 55,465,154.35 = 87,618,641.575
+\]
+Bình phương trung bình giữa nhóm (MSB):
+\[
+MSB = \frac{SSB}{k-1} = \frac{87,618,641.575}{3} \approx 29,206,213.86
+\]
 
-\begin{lstlisting}[language=r,caption=Quan sát các giá trị quan trắc]
-    > summary(difference) # Gọi hàm summary ra các giá trị quan trắc
-    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
--31109.3    263.9    795.3   1334.6   2302.1  33520.3 
-> 
-\end{lstlisting}
+\paragraph{Tổng bình phương trong nhóm (SSW):}
+\[
+SSW = 1,643,911,107 + 1,787,066,635 + 1,401,335,343 + 3,074,574,995 = 7,906,888,080
+\]
+Bình phương trung bình trong nhóm (MSW):
+\[
+MSW = \frac{SSW}{N-k} = \frac{7,906,888,080}{116} \approx 68,162,828.28
+\]
+
+\subsubsection{Giá trị thống kê kiểm định}
+\[
+F = \frac{MSB}{MSW} = \frac{29,206,213.86}{68,162,828.28} \approx 0.4285
+\]
+
+\subsubsection{Miền bác bỏ}
+Với $\alpha = 5\%$, $df_1 = k-1 = 3$, $df_2 = N-k = 116$:
+\[
+F_{0.05; 3; 116} \approx 2.6802
+\]
+Miền bác bỏ:
+\[
+RR = (2.6802, +\infty)
+\]
 
 \subsubsection{Kết luận}
-Với kết quả kiểm định thống kê, ta kết luận rằng \textbf{có sự khác biệt giữa giá trị gốc và giá trị thực tế của các đơn hàng}. Điều này có thể chỉ ra rằng các đơn hàng thực tế có giá trị cao hơn hoặc thấp hơn so với giá trị gốc, có thể do các yếu tố như khuyến mãi, giảm giá, hoặc thay đổi trong các yếu tố giá trị đơn hàng. Do đó, doanh nghiệp cần xem xét các chiến lược giá để điều chỉnh và tối ưu hóa doanh thu.
-\filbreak
+\begin{boxH}
+
+\textbf{Kết luận:} 
+Vì $F \approx 0.4285 < 2.6802$, không bác bỏ $H_0$ nên không có bằng chứng thống kê cho thấy giá trị đơn hàng trung bình giữa các mùa khác biệt đáng kể.
+
+\end{boxH}
+
+\subsection{Xử lý trên phần mềm R}
+Sử dụng phương pháp leveneTest trong R để thực hiện
+\begin{lstlisting}[language=R, caption=Phép kiểm ANOVA một yếu tố]
+##################################################
+# 9. ANOVA (4 mùa)
+##################################################
+df_cleaned <- merged_data %>%
+  group_by(season) %>%
+  mutate(order_total_cleaned = ifelse(order_total > quantile(order_total, 0.75) + 1.5 * IQR(order_total) |
+                                      order_total < quantile(order_total, 0.25) - 1.5 * IQR(order_total),
+                                      NA, order_total)) %>%
+  ungroup()
+
+leveneTest(order_total_cleaned ~ season, data = df_cleaned)
+
+anova_model <- aov(order_total_cleaned ~ season, data = df_cleaned)
+summary(anova_model)
+
+# Boxplot ANOVA
+ggplot(df_cleaned, aes(x = season, y = order_total_cleaned)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "So sánh Order Total giữa các mùa (ANOVA)")
+
+\end{lstlisting}
+
+\begin{lstlisting}[language=R, caption=Kết quả ANOVA một yếu tố]
+Df    Sum Sq   Mean Sq F value Pr(>F)  
+season        3 3.576e+08 119214928   2.299 0.0759 .
+Residuals   981 5.086e+10  51848700 
+  
+\end{lstlisting}
+Kết luận: Không đủ điều kiện để bác bỏ giả thuyết $H_0$ với $p$-value = 0.0759 > 0.05, tức là không có sự khác biệt đáng kể giữa giá trị đơn hàng trung bình của các mùa.
+% --------------------
+\pagebreak
+\subsection{Hồi quy tuyến tính}
+
+\subsubsection{Bài toán thực tế}
+Xây dựng mô hình hồi quy tuyến tính với biến phụ thuộc:
+\[
+Y = \texttt{order\_price}
+\]
+và hai biến độc lập:
+\[
+X_1 = \texttt{coupon\_discounts}, \quad X_2 = \texttt{delivery\_charges}.
+\]
+Mô hình hồi quy bội được viết dưới dạng:
+\[
+Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \varepsilon_i, \quad i = 1, 2, \ldots, n
+\]
+trong đó:
+\begin{itemize}
+    \item $Y$: Giá trị đơn hàng (\texttt{order\_price})
+    \item $X_1$: Giảm giá bằng coupon (\texttt{coupon\_discounts})
+    \item $X_2$: Phí giao hàng (\texttt{delivery\_charges})
+    \item $\varepsilon_i$: Sai số ngẫu nhiên, có kỳ vọng $E(\varepsilon) = 0$, phương sai $\sigma^2$
+\end{itemize}
+
+\subsubsection{Cơ sở lý thuyết}
+Mô hình hồi quy bội mở rộng mô hình hồi quy đơn bằng cách đưa vào nhiều biến độc lập:
+\[
+Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p + \varepsilon
+\]
+\begin{itemize}
+    \item $\beta_0$: Hệ số chặn
+    \item $\beta_j$: Hệ số hồi quy của biến độc lập $X_j$
+    \item $\varepsilon$: Sai số ngẫu nhiên
+\end{itemize}
+
+\subsubsection{Phương pháp ước lượng}
+Sử dụng phương pháp \textbf{Bình phương tối thiểu (OLS)}:
+\[
+\hat{\beta} = (X^\mathsf{T}X)^{-1} X^\mathsf{T} Y
+\]
+trong đó:
+\begin{itemize}
+    \item $X$: Ma trận giá trị các biến độc lập $(n \times (p+1))$
+    \item $Y$: Vector giá trị của biến phụ thuộc $(n \times 1)$
+    \item $\hat{\beta}$: Vector hệ số hồi quy $(p+1) \times 1$
+\end{itemize}
+
+\paragraph{Hệ số xác định $R^2$:}
+\[
+R^2 = 1 - \frac{SS_\text{res}}{SS_\text{tot}}
+\]
+với:
+\[
+SS_\text{res} = \sum_{i=1}^n (y_i - \hat{y}_i)^2, \quad SS_\text{tot} = \sum_{i=1}^n (y_i - \overline{y})^2
+\]
+
+\subsubsection{Kết quả mô hình OLS}
+Mô hình trong R:
+\begin{verbatim}
+model <- lm(order_price ~ coupon_discount + delivery_charges, data = df)
+summary(model)
+\end{verbatim}
+
+\paragraph{Kiểm tra đa cộng tuyến:}
+\begin{verbatim}
+vif(model)
+# coupon_discount: 1.000546
+# delivery_charges: 1.000546
+\end{verbatim}
+$\Rightarrow$ VIF xấp xỉ 1 cho cả hai biến, không xảy ra đa cộng tuyến.
+
+\paragraph{Hệ số ước lượng:}
+\[
+\hat{\beta}_0 = 13297.85, \quad \hat{\beta}_1 = 143.66, \quad \hat{\beta}_2 = 59.37
+\]
+Ý nghĩa:
+\begin{itemize}
+    \item Khi $X_1$ tăng 1 đơn vị, $Y$ tăng trung bình $143.66$
+    \item Khi $X_2$ tăng 1 đơn vị, $Y$ tăng trung bình $59.37$
+\end{itemize}
+
+\paragraph{Kiểm định $t$:}
+\begin{itemize}
+    \item $X_1$: $p = 0.527 > 0.05$ $\Rightarrow$ không đủ bằng chứng biến có ý nghĩa
+    \item $X_2$: $p = 0.662 > 0.05$ $\Rightarrow$ không đủ bằng chứng biến có ý nghĩa
+\end{itemize}
+
+\paragraph{Kiểm định $F$:}
+$p$-value lớn hơn 0.05, $R^2 \approx 0$ $\Rightarrow$ mô hình không có ý nghĩa thống kê, biến phụ thuộc quan hệ yếu với các biến độc lập.
 \input{Sections/6_Mo_Rong}
