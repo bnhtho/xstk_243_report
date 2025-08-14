@@ -71,22 +71,14 @@ W = 0.94557, p-value < 2.2e-16
 \end{boxH}
 \subsection{Kiểm định trung bình một mẫu}
 \subsubsection{Bài toán thực tế}
-Sử dụng t-test , nhóm muốn kiểm tra giả thuyết rằng doanh thu bán hàng của cửa hàng trong mùa Xuân có bằng với giá trị kì vọng ($\mu$ = $50$) không? 
+Để kiểm định giá trị trung bình một mẫu, nhóm đã đặt giả thuyết rằng doanh thu bán hàng của cửa hàng trong mùa Xuân có bằng với doanh thu kì vọng là 50 triệu đồng hay không? ($\mu$ = $50$)  
 Nhóm đưa ra hai giả thuyết như sau:
+
 \textbf{Giả thuyết kiểm định:}
 \begin{itemize}
-    \item \( H_0 \): \( \mu = 50 \) (Doanh thu trung bình mùa xuân bằng kỳ vọng)
-    \item \( H_1 \): \( \mu > 50 \) (Doanh thu trung bình mùa xuân lớn hơn kỳ vọng)
+    \item \( H_0 \): \( \mu = 50 \) 
+    \item \( H_1 \): \( \mu > 50 \) 
 \end{itemize}
-
-\begin{boxH}
-\textbf{Giải thích:} Lí do nhóm sử dụng \textbf{t-test} vì mẫu lớn hơn 30 mẫu, chúng không tuân theo phân phối chuẩn.
-\end{boxH}
-
-
-
-\subsubsection{Tính giá trị kiểm định}
-
 
 \subsubsection{Mô tả dữ liệu và công thức tính}
 
@@ -118,7 +110,7 @@ Số quan sát \( n \) & 266 (vì df = 265) \\
 \label{tab:thongso}
 \end{table}
 
-Áp dụng lý thuyết t-test cho một mẫu, ta có công thức tính giá trị kiểm định như sau:
+Áp dụng công thức lý thuyết cho trường hợp phân phối tuỳ ý, mẫu $\geq$ $30$ ,  ta có công thức tính giá trị kiểm định như sau:
 \begin{boxH}
 \[
 Z_{qs} = \frac{\bar{X} - \mu_0}{\dfrac{s}{\sqrt{n}}}
@@ -170,42 +162,24 @@ so với \textbf{mùa hè} với mức ý nghĩa $\alpha$ = 0.05
 
 Nhóm đặt giả thuyết như sau
 \begin{itemize}
-    \item \textbf{Giả thuyết không (H\textsubscript{0}):} $\mu_1 = \mu_2$ (Doanh thu trung bình mùa xuân bằng mùa hè)
-    \item \textbf{Giả thuyết đối (H\textsubscript{1}):} $\mu_1 \ne \mu_2$ (Có sự khác biệt giữa 2 mùa)
+    \item \textbf{Giả thuyết không (H\textsubscript{0}):} $\mu_1 = \mu_2$ 
+    \item \textbf{Giả thuyết đối (H\textsubscript{1}):} $\mu_1 \ne \mu_2$ 
 \end{itemize}
 \subsubsection{Tính giá trị kiểm định}
 Để tính giá trị kiểm định, nhóm sử dụng phương pháp tách 2 mẫu \textbf{xuân} và \textbf{hè} ra làm 2 và lọc ra thông số độ lệch chuẩn, n (số mẫu) và mean (trung bình mẫu)
 
-\begin{lstlisting}[language=R, caption=Các thông số thống kê dùng trong kiểm định trung bình 2 mẫu ]
-
-\begin{lstlisting}[language=R, caption= z-test]
+\begin{lstlisting}[language=R, caption=Chia nhóm và tính toán chỉ số đặc trưng ]
 group_stats <- merged_data %>%
+  filter(season %in% c("spring", "summer")) %>%
   group_by(season) %>%
   summarise(
     mean = mean(order_total),
     sd = sd(order_total),
     n = n(),
-    .groups = "drop"  # tránh cảnh báo nhóm
-  ) %>%
-  filter(season %in% c("spring", "summer"))
-
+    .groups = "drop"
+  )
 print(group_stats)
 
-# Độ lệch chuẩn 2 mùa xuân và hè 
-sd_spring <- group_stats$sd[group_stats$season == "spring"]
-sd_summer <- group_stats$sd[group_stats$season == "summer"]
-
-## Tổng giá trị đơn hàng trong 2 mùa
-spring_data <- merged_data$order_total[merged_data$season == "spring"]
-summer_data <- merged_data$order_total[merged_data$season == "summer"]
-### Z -test
-z_test_result <- z.test(x = spring_data, y = summer_data,
-       mu = 0,
-       sigma.x = sd_spring,
-       sigma.y = sd_summer,
-       alternative = "two.sided")
-
-print(z_test_result)
 \end{lstlisting}
 \subsubsection{Mô tả dữ liệu và công thức tính}
 \begin{table}[H]
@@ -217,8 +191,14 @@ Xuân (Spring) & 12,320 & 7,757 & 266 \\
 Hè (Summer)   & 12,487 & 7,697 & 249 \\
 \end{tabular}
 \end{table}
+Công thức tính cho trường hợp kiểm định 2 mẫu độc lập, có phân phối tuỳ ý và 2 mẫu $\geq$ $30$ như sau:
+\[
+Z_{qs} = \frac{\overline{X}_1 - \overline{X}_2}
+{\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}}
+\]
 \begin{boxH}
-Trong phần lý thuyết, nhóm đã đề cập phương pháp t-test cho hai mẫu. Do đó nhóm sẽ sử dụng công thức tính giá trị kiểm định và thông số trong bảng mô tả dữ liệu như sau:
+
+Thế số vào:
 \[
 Z = \frac{12319.55 - 12486.75}{\sqrt{\frac{7757.41^2}{266} + \frac{7697.42^2}{249}}} \approx -0.24542
 \]
@@ -252,8 +232,8 @@ mean in group spring mean in group summer
 Với $p_value = 0.8602 > 0.05$ , nhóm không có đủ bằng chứng để bác bỏ giả thuyết $H_0$ tức là không có sự khác biệt trong doanh thu giữa hai mùa.
 
 \end{boxH}
-% Annova
-\subsection{Annova một yếu tố}
+% Anova
+\subsection{Anova một yếu tố}
 
 \subsubsection{Bài toán thực tế}
 Một cửa hàng điện tử muốn kiểm tra xem \textbf{giá trị đơn hàng trung bình} (\texttt{order\_total}), với cỡ mẫu của mỗi nhóm là $30$, có bị ảnh hưởng bởi \textbf{mùa vụ} (\texttt{season}) hay không.  
@@ -267,13 +247,15 @@ Với mức ý nghĩa $\alpha = 5\%$, sử dụng phương ph \textbf{mô hình 
   \item Số nhóm $k=4$
   \item Phương sai bằng nhau $\sigma_1^2 = \sigma_2^2 = \sigma_3^2 = \sigma_4^2$
   \item Các mẫu quan sát (từ $k$ tổng thể) được lấy độc lập, với $n = 30$ cho mỗi nhóm, tổng số quan sát $N = 120$.
+  \item 
 \end{itemize}
 
 \subsubsection{Hiện thực phép toán}
 Gọi $\mu_i$ là giá trị đơn hàng trung bình của mùa thứ $i$.
 \begin{align*}
     H_0 &: \mu_1 = \mu_2 = \mu_3 = \mu_4, \\
-    H_1 &: \exists\ i \neq j \ \text{sao cho} \ \mu_i \neq \mu_j.
+    % H_1 &: \exists\ i \neq j \ \text{sao cho} \ \mu_i \neq \mu_j.
+    H_1 &: \exists\ \mu_i \neq \mu_j \ \text{sao cho} \ i \neq j.
 \end{align*}
 
 \subsubsection{Tính các tham số mẫu}
@@ -289,7 +271,7 @@ Autumn  & $12858.15$ & $48,321,908.37$ \\
 Spring  & $14594.52$ & $106,019,827.40$ \\ \hline
 \end{tabular}
 \end{table}
-
+Trung bình tổng thể \textbf{$\overline{x}$} là $1311.33$
 \subsubsection{Giá trị trong và giữa các nhóm}
 
 \paragraph{Tổng bình phương giữa nhóm (SSB):}
@@ -336,27 +318,13 @@ Vì $F \approx 0.4285 < 2.6802$, không bác bỏ $H_0$ nên không có bằng c
 \subsection{Xử lý trên phần mềm R}
 Sử dụng phương pháp leveneTest trong R để thực hiện
 \begin{lstlisting}[language=R, caption=Phép kiểm ANOVA một yếu tố]
-##################################################
-# 9. ANOVA (4 mùa)
-##################################################
 df_cleaned <- merged_data %>%
   group_by(season) %>%
-  mutate(order_total_cleaned = ifelse(order_total > quantile(order_total, 0.75) + 1.5 * IQR(order_total) |
-                                      order_total < quantile(order_total, 0.25) - 1.5 * IQR(order_total),
-                                      NA, order_total)) %>%
+  mutate(order_total_cleaned = ifelse(order_total > quantile(order_total, 0.75) + 1.5 * IQR(order_total) | order_total < quantile(order_total, 0.25) - 1.5 * IQR(order_total), NA, order_total)) %>%
   ungroup()
-
 leveneTest(order_total_cleaned ~ season, data = df_cleaned)
-
 anova_model <- aov(order_total_cleaned ~ season, data = df_cleaned)
 summary(anova_model)
-
-# Boxplot ANOVA
-ggplot(df_cleaned, aes(x = season, y = order_total_cleaned)) +
-  geom_boxplot() +
-  theme_minimal() +
-  labs(title = "So sánh Order Total giữa các mùa (ANOVA)")
-
 \end{lstlisting}
 
 \begin{lstlisting}[language=R, caption=Kết quả ANOVA một yếu tố]
@@ -366,8 +334,6 @@ Residuals   981 5.086e+10  51848700
   
 \end{lstlisting}
 Kết luận: Không đủ điều kiện để bác bỏ giả thuyết $H_0$ với $p$-value = 0.0759 > 0.05, tức là không có sự khác biệt đáng kể giữa giá trị đơn hàng trung bình của các mùa.
-% --------------------
-\pagebreak
 \subsection{Hồi quy tuyến tính}
 
 \subsubsection{Bài toán thực tế}

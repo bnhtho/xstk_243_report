@@ -74,7 +74,6 @@ IQR là một chỉ số quan trọng giúp xác định sự phân tán dữ li
 \subsection{Kiến thức thống kê suy luận (Tóm tắt)}
 % Lý thuyết kiểm định
 \subsubsection{Lý thuyết Kiểm định thống kê}
-\begin{boxH}
     \textbf{Kiểm định} là quá trình sử dụng dữ liệu mẫu để đưa ra quyết định về một giả thuyết nào đó liên quan đến tổng thể.
   \begin{itemize}
     \item \textbf{Giả thuyết không (Null Hypothesis - $H_0$):} Giả thuyết ban đầu cho rằng không có sự khác biệt hoặc mối quan hệ nào giữa các biến.
@@ -82,40 +81,7 @@ IQR là một chỉ số quan trọng giúp xác định sự phân tán dữ li
     \item \textbf{Mức ý nghĩa (Significance Level - $\alpha$):} Xác định ngưỡng để bác bỏ giả thuyết không, thường là 0.05 hoặc 0.01.
     \item \textbf{Giá trị p (p-value):} Xác suất để quan sát được dữ liệu mẫu nếu giả thuyết không là đúng. Nếu p-value nhỏ hơn mức ý nghĩa $\alpha$, ta bác bỏ giả thuyết không.
   \end{itemize}
-\end{boxH}
-\subsubsection{Kiểm định z-test cho 1 mẫu}
 
-\subsubsection{Kiểm định t-test cho 2 mẫu độc lập}
-\begin{itemize}
-    \item \textbf{Định nghĩa:} Kiểm định t-test là một phương pháp thống kê dùng để so sánh trung bình của hai nhóm độc lập hoặc hai mẫu liên quan nhằm xác định xem có sự khác biệt có ý nghĩa thống kê giữa chúng hay không.
-    \item \textbf{Ý nghĩa:}
-    \begin{itemize}
-        \item Phù hợp cho dữ liệu có phân phối tuỳ ý và mẫu lớn ($ n> 30 $)
-        \item Giúp xác định xem hai nhóm có khác biệt về trung bình hay không.
-    \end{itemize}
-\end{itemize}
-\begin{boxH}
-    \textbf{Công thức tổng quát} cho hai mẫu độc lập:
-    \[
-T = \frac{\bar{X}_1 - \bar{X}_2}{\sqrt{ \frac{s_1^2}{n_1} + \frac{s_2^2}{n_2} }}
-\]
-
-\noindent Trong đó:
-
-\begin{itemize}
-    \item \( \bar{X}_1, \bar{X}_2 \): trung bình mẫu của hai nhóm (ví dụ: mùa xuân và mùa hè)
-    \item \( s_1, s_2 \): độ lệch chuẩn mẫu của hai nhóm
-    \item \( n_1, n_2 \): kích thước mẫu của hai nhóm
-\end{itemize}
-
-Bậc tự do (degrees of freedom) được ước lượng theo công thức Welch–Satterthwaite:
-
-\[
-df = \frac{\left( \frac{s_1^2}{n_1} + \frac{s_2^2}{n_2} \right)^2}{\frac{ \left( \frac{s_1^2}{n_1} \right)^2 }{n_1 - 1} + \frac{ \left( \frac{s_2^2}{n_2} \right)^2 }{n_2 - 1}}
-\]
-
-So sánh giá trị \( |T| \) với ngưỡng \( t_{\alpha/2, df} \) để đưa ra kết luận.
-\end{boxH}
 \subsubsection{Kiểm định Kruskal-Wallis}  
 \begin{itemize}
     \item \textbf{Định nghĩa:} Kiểm định phi tham số dùng để so sánh trung vị của \textbf{ba hoặc nhiều nhóm độc lập} nhằm xác định xem có sự khác biệt đáng kể giữa các nhóm khi dữ liệu không theo phân phối chuẩn.  
@@ -126,26 +92,22 @@ So sánh giá trị \( |T| \) với ngưỡng \( t_{\alpha/2, df} \) để đưa
     \end{itemize}
 \end{itemize}
 
-\subsubsection{Kiểm định Wilcoxon-Mann-Whitney}  
+\subsection{Hồi quy tuyến tính}
+% Lý thuyết hồi quy tuyến tính
+Hồi quy tuyến tính là một kỹ thuật phân tích dữ liệu dự đoán giá trị của biến phụ thuộc dựa trên giá trị của một hoặc nhiều biến độc lập. Mối quan hệ giữa các biến được mô hình hóa bằng một phương trình tuyến tính.
+
+\textbf{Ý nghĩa}
 \begin{itemize}
-    \item \textbf{Định nghĩa:} Kiểm định phi tham số dùng để so sánh \textbf{hai mẫu độc lập}, kiểm tra xem hai mẫu có cùng phân phối hay không.  
-    \item \textbf{Ý nghĩa:}  
-    \begin{itemize}
-        \item Thích hợp khi dữ liệu không chuẩn hoặc có ngoại lệ lớn.  
-        \item Ứng dụng cho dữ liệu định lượng hoặc thứ bậc để kiểm tra sự khác biệt về phân phối.  
-    \end{itemize}
+    \item Xác định mối quan hệ và mức độ ảnh hưởng của các biến độc lập đến biến phụ thuộc.
+    \item Dự đoán giá trị của biến phụ thuộc khi biết trước giá trị biến độc lập.
 \end{itemize}
 
-\subsubsection{Kiểm định Wilcoxon Signed-Rank}  
+\subsection{Phân tích phương sai (ANOVA)}
+% Lý thuyết ANOVA
+Phân tích phương sai (ANOVA) là một phương pháp thống kê được sử dụng để kiểm tra sự khác biệt trung bình giữa từ hai nhóm trở lên, dựa trên việc so sánh biến thiên giữa các nhóm với biến thiên trong cùng nhóm.
+
+\textbf{Ý nghĩa}
 \begin{itemize}
-    \item \textbf{Định nghĩa:} Kiểm định phi tham số dùng để so sánh trung vị của \textbf{hai tập dữ liệu liên quan (cặp đôi)}, thay thế kiểm định tham số khi dữ liệu không tuân theo phân phối chuẩn.  
-    \item \textbf{Ý nghĩa:}  
-    \begin{itemize}
-        \item Kiểm tra sự khác biệt giữa hai tập dữ liệu liên quan.  
-        \item Thích hợp cho dữ liệu định lượng không chuẩn hoặc dữ liệu thứ bậc.  
-    \end{itemize}
+    \item Đánh giá xem sự khác biệt giữa các nhóm có ý nghĩa thống kê hay chỉ do ngẫu nhiên.
+    \item Hỗ trợ lựa chọn biến hoặc yếu tố có ảnh hưởng đáng kể đến kết quả nghiên cứu.
 \end{itemize}
-
-\subsubsection{Phân tích hậu kiểm}
-\textbf{Post hoc test}: được sử dụng sau khi có kết quả có ý nghĩa thống kê để xác định sự khác biệt giữa các nhóm. Kiểm định \textbf{Bonferroni} là phương pháp đơn giản, điều chỉnh mức ý nghĩa \(\alpha\) bằng cách chia cho số lượng so sánh, giúp kiểm soát tỷ lệ lỗi loại I khi thực hiện các bài kiểm tra tính độc lập giữa các nhóm.
-
